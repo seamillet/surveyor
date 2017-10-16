@@ -24,21 +24,17 @@ import com.surveyor.drawlib.map.event.ContentChangedListener;
 import com.surveyor.drawlib.tools.ITool;
 import com.surveyor.drawlib.tools.ZoomPan;
 
-import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
 
-import srs.DataSource.Vector.IFeatureClass;
 import srs.Geometry.Envelope;
 import srs.Geometry.IEnvelope;
 import srs.Geometry.IPoint;
 import srs.Layer.IElementContainer;
-import srs.Layer.IFeatureLayer;
 import srs.Layer.IGPSContainer;
 import srs.Layer.TileLayer;
 import srs.Layer.wmts.ImageDownLoader;
-import srs.Operation.SelectedFeatures;
 
 /**
  * Created by stg on 17/10/14.
@@ -50,7 +46,7 @@ public class MapView extends BaseControl implements ContentChangedListener {
     private ITool mZoomPan = null;
     private ITool mDrawTool = null;
 
-    DisplayMetrics displayMetrics = new DisplayMetrics();
+    DisplayMetrics displayMetrics;
     private int densityDpi;
     private int mwidthold = 0;
     private int mheightold = 0;
@@ -71,55 +67,30 @@ public class MapView extends BaseControl implements ContentChangedListener {
     IFeatureLayer fLayer = null;
     public String IndexOfCheck = "";*/
 
-    public void dispose() throws Exception {
-        if(this.mBitScreen != null && !this.mBitScreen.isRecycled()) {
-            this.mBitScreen.recycle();
-            this.mBitScreen = null;
-        }
-
-        this.mBitScreen = null;
-        this.myHandler = null;
-        this.mProgressBar = null;
-        this.mPaint = null;
-        this.menv = null;
-        /*this.fLayer = null;
-        this.mfieldID = null;*/
-        this.mActiveView.dispose();
-        this.mActiveView = null;
-        //this.mTVRules = null;
-        ((ZoomPan)this.mZoomPan).dispose();
-        this.mZoomPan = null;
-        //this.mGPSTool = null;
-        this.mDrawTool = null;
-    }
-
     public MapView(Context context) {
         super(context);
-        this.mZoomPan = new ZoomPan();
-        this.Initial();
+        this.init();
     }
 
     public MapView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.mZoomPan = new ZoomPan();
-        this.Initial();
+        this.init();
     }
 
     @SuppressLint({"HandlerLeak"})
-    private void Initial() {
+    private void init() {
         this.mActiveView = new ActiveView();
+        this.mZoomPan = new ZoomPan();
         this.mZoomPan.setBuddyControl(this);
+
+        this.displayMetrics = this.getResources().getDisplayMetrics();
+        this.densityDpi = this.displayMetrics.densityDpi;
+
         this.mProgressBar = new ProgressBar(this.getContext());
         LayoutParams params = new LayoutParams(-2, -2);
         params.addRule(13);
-        //this.mTVRules = new TextView(this.getContext());
         this.addView(this.mProgressBar, params);
-        /*LayoutParams paramRules = new LayoutParams(-2, -2);
-        paramRules.addRule(6);
-        paramRules.addRule(5);
-        this.addView(this.mTVRules, paramRules);*/
-        this.displayMetrics = this.getResources().getDisplayMetrics();
-        this.densityDpi = this.displayMetrics.densityDpi;
+
         this.myHandler = new Handler() {
             public void handleMessage(Message msg) {
                 try {
@@ -166,13 +137,8 @@ public class MapView extends BaseControl implements ContentChangedListener {
                     Log.e("LEVEL-ROW-COLUMN", "MapControl.myHandler.handleMessage:" + var3.getMessage());
                     Log.e("key", "e.getMessage()");
                 }
-
             }
         };
-    }
-
-    public void ClearDrawTool() {
-        this.mDrawTool = null;
     }
 
     protected void onFinishInflate() {
@@ -189,43 +155,59 @@ public class MapView extends BaseControl implements ContentChangedListener {
         System.gc();
     }
 
-    public ITool getDrawTool() {
-        return this.mDrawTool != null?this.mDrawTool:null;
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        int weidth = r - l;
+        int height = b - t;
+        if(this.misFirst && changed && this.mwidthold != weidth && this.mheightold != height) {
+            this.mwidthold = weidth;
+            this.mheightold = height;
+            Log.i("MapControl。onLayout", "width:" + this.mwidthold + ";height:" + this.mheightold + ";");
+            IMap mMap = this.mActiveView.FocusMap();
+            mMap.setDeviceExtent(new Envelope(0.0D, 0.0D, (double)this.mwidthold, (double)this.mheightold));
+            this.misFirst = false;
+            this.Refresh();
+        }
     }
 
-    public void setDrawTool(ITool value) {
-        if(value != null) {
-            this.mDrawTool = value;
-            this.mDrawTool.setBuddyControl(this);
-            this.mDrawTool.setEnable(Boolean.valueOf(true));
-        } else {
-            this.mDrawTool = null;
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        Log.i("MapControl", "onMeasure");
+    }
+
+    protected void onDraw(Canvas canvas) {
+        try {
+            super.onDraw(canvas);
+        } catch (Exception var4) {
+            Log.i("RECYCLE", "MyIamgeView -> onDraw() Canvas:trying to use a recycled bitmap");
         }
 
-    }
+        try {
+            Log.i("onDraw", "重画屏幕");
+            if(this.mZoomPan != null && ((ZoomPan)this.mZoomPan).isMAGNIFY()) {
+                super.onDraw(canvas);
+                ((ZoomPan)this.mZoomPan).drawMagnify(canvas);
+                return;
+            }
 
-    /*public void setGPSTool(ITool value) {
-        if(value != null) {
-            this.mGPSTool = value;
-            this.mGPSTool.setBuddyControl(this);
-            this.mGPSTool.setEnable(Boolean.valueOf(true));
-        } else {
-            this.mGPSTool = null;
+            if(this.IsDrawTrack) {
+                if(this.mBitScreen == null) {
+                    this.mBitScreen = this.mActiveView.FocusMap().ExportMap(false).copy(Bitmap.Config.RGB_565, true);
+                    Log.d("mBitScreen", "" + this.mBitScreen);
+                }
+
+                canvas.drawBitmap(this.mBitScreen, 0.0F, 0.0F, this.mPaint);
+                this.IsDrawTrack = false;
+                if(this.mBitScreen != null && !this.mBitScreen.isRecycled()) {
+                    this.mBitScreen = null;
+                    Log.d("mBitScreen", "" + this.mBitScreen);
+                }
+            }
+        } catch (Exception var3) {
+            System.out.println("终于抓到你了！");
+            var3.printStackTrace();
         }
-
     }
-
-    public void clearGPSTool() {
-        if(this.mGPSTool != null) {
-            this.mGPSTool.setEnable(Boolean.valueOf(false));
-            this.mGPSTool = null;
-        }
-
-    }
-
-    public ITool getGPSTool() {
-        return this.mGPSTool;
-    }*/
 
     public boolean onTouch(View v, MotionEvent event) {
         if(this.mDrawTool != null && this.mDrawTool.getEnable().booleanValue()) {
@@ -244,6 +226,91 @@ public class MapView extends BaseControl implements ContentChangedListener {
         } else {
             return true;
         }
+    }
+
+    public void Refresh() {
+        try {
+            this.setDrawingCacheEnabled(true);
+
+            try {
+                if(!this.misFirst && this.mActiveView.FocusMap().getHasWMTSBUTTOM()) {
+                    this.mBitScreen = this.getDrawingCache().copy(Bitmap.Config.RGB_565, false);
+                    Log.i("RECYCLE", "通过getDrawingCache获取了控件的截图，并copy后赋值给mBitScreen" + this.mBitScreen);
+                }
+
+                this.setDrawingCacheEnabled(false);
+            } catch (Exception var3) {
+                Log.e("LEVEL-ROW-COLUMN", "MapControl.Refresh at 490" + var3.getMessage());
+            }
+
+            if(this.mBitScreen != null && !this.mBitScreen.isRecycled() && this.mActiveView.FocusMap().getHasWMTSBUTTOM()) {
+                this.mActiveView.FocusMap().Refresh(this.myHandler, this.mBitScreen);
+            } else {
+                this.mActiveView.FocusMap().Refresh(this.myHandler, (Bitmap)null);
+            }
+        } catch (InterruptedException var4) {
+            Log.e("LEVEL-ROW-COLUMN", "MapControl.Refresh at 507 InterruptedException" + var4.getMessage());
+            var4.printStackTrace();
+        } catch (Exception var5) {
+            Log.e("LEVEL-ROW-COLUMN", "MapControl.Refresh at 510" + var5.getMessage());
+            Message message = new Message();
+            message.arg1 = 2;
+            this.myHandler.sendMessage(message);
+        }
+    }
+
+    public void PartialRefresh() {
+        try {
+            this.mActiveView.FocusMap().PartialRefresh();
+            this.DrawTrack();
+        } catch (Exception var2) {
+            var2.printStackTrace();
+            System.out.println(var2.getMessage());
+        }
+    }
+
+    public void DrawTileImage(String key, Handler handler) {
+        TileLayer.DrawImageFromURL(key, handler);
+    }
+
+    public void DrawTrackLayer() {
+        BitmapDrawable bd = new BitmapDrawable(this.getResources(), this.mActiveView.FocusMap().ExportMapLayer());
+        this.setBackgroundDrawable(bd);
+        Log.i("LEVEL-ROW-COLUMN", "图层：" + String.valueOf(Map.INDEXDRAWLAYER) + "绘制,将\'图层缓存\'绘于屏幕 MapControl.DrawTrackLayer");
+    }
+
+    public void DrawTrack() {
+        Bitmap bmp = this.mActiveView.FocusMap().ExportMap(false).copy(Bitmap.Config.RGB_565, true);
+        BitmapDrawable bd = new BitmapDrawable(this.getResources(), bmp);
+        this.setBackgroundDrawable(bd);
+        bmp = null;
+        Log.i("LEVEL-ROW-COLUMN", "地图刷新完成,将画布底图绘于屏幕 MapControl.DrawTrack");
+    }
+
+    public void DrawTrack(Bitmap bit) {
+        if(bit != null && bit != this.mActiveView.FocusMap().ExportMap(false)) {
+            BitmapDrawable bd = new BitmapDrawable(this.getResources(), bit);
+            this.setBackgroundDrawable(bd);
+            bit = null;
+        }
+    }
+
+    public ITool getDrawTool() {
+        return this.mDrawTool != null?this.mDrawTool:null;
+    }
+
+    public void setDrawTool(ITool value) {
+        if(value != null) {
+            this.mDrawTool = value;
+            this.mDrawTool.setBuddyControl(this);
+            this.mDrawTool.setEnable(Boolean.valueOf(true));
+        } else {
+            this.mDrawTool = null;
+        }
+    }
+
+    public void ClearDrawTool() {
+        this.mDrawTool = null;
     }
 
     public IMap getMap() {
@@ -293,31 +360,6 @@ public class MapView extends BaseControl implements ContentChangedListener {
             this.mActiveView = value;
             this.mActiveView.getContentChanged().addListener(this);
         }
-
-    }
-
-    public void doEvent(EventObject event) {
-        int width = this.getWidth();
-        int height = this.getHeight();
-        if(width != 0 && height != 0) {
-            this.mActiveView.FocusMap().setDeviceExtent(new Envelope(0.0D, 0.0D, (double)width, (double)height));
-        } else {
-            this.mActiveView.FocusMap().setDeviceExtent(new Envelope(0.0D, 0.0D, 60.0D, 60.0D));
-        }
-
-    }
-
-    public void Copy(BaseControl targetControl) {
-        if(targetControl.getActiveView().FocusMap() == null) {
-            targetControl.getActiveView().FocusMap(this.mActiveView.FocusMap());
-        }
-
-        if(!targetControl.getActiveView().equals(this.mActiveView)) {
-            this.mActiveView = targetControl.getActiveView();
-            this.mActiveView.getContentChanged().addListener(this);
-        }
-
-        this.mActiveView.FocusMap().setDeviceExtent(new Envelope(0.0D, 0.0D, (double)this.getWidth(), (double)this.getHeight()));
     }
 
     public IPoint ToWorldPoint(PointF point) {
@@ -334,118 +376,6 @@ public class MapView extends BaseControl implements ContentChangedListener {
 
     public double ToWorldDistance(double deviceDistance) {
         return this.mActiveView.FocusMap().ToMapDistance(deviceDistance);
-    }
-
-    protected void onDraw(Canvas canvas) {
-        try {
-            super.onDraw(canvas);
-        } catch (Exception var4) {
-            Log.i("RECYCLE", "MyIamgeView -> onDraw() Canvas:trying to use a recycled bitmap");
-        }
-
-        try {
-            Log.i("onDraw", "重画屏幕");
-            if(this.mZoomPan != null && ((ZoomPan)this.mZoomPan).isMAGNIFY()) {
-                super.onDraw(canvas);
-                ((ZoomPan)this.mZoomPan).drawMagnify(canvas);
-                return;
-            }
-
-            if(this.IsDrawTrack) {
-                if(this.mBitScreen == null) {
-                    this.mBitScreen = this.mActiveView.FocusMap().ExportMap(false).copy(Bitmap.Config.RGB_565, true);
-                    Log.d("mBitScreen", "" + this.mBitScreen);
-                }
-
-                canvas.drawBitmap(this.mBitScreen, 0.0F, 0.0F, this.mPaint);
-                this.IsDrawTrack = false;
-                if(this.mBitScreen != null && !this.mBitScreen.isRecycled()) {
-                    this.mBitScreen = null;
-                    Log.d("mBitScreen", "" + this.mBitScreen);
-                }
-            }
-        } catch (Exception var3) {
-            System.out.println("终于抓到你了！");
-            var3.printStackTrace();
-        }
-
-    }
-
-    public void StopDraw() {
-        ImageDownLoader.cancelTask();
-    }
-
-    public void Refresh() {
-        try {
-            this.setDrawingCacheEnabled(true);
-
-            try {
-                if(!this.misFirst && this.mActiveView.FocusMap().getHasWMTSBUTTOM()) {
-                    this.mBitScreen = this.getDrawingCache().copy(Bitmap.Config.RGB_565, false);
-                    Log.i("RECYCLE", "通过getDrawingCache获取了控件的截图，并copy后赋值给mBitScreen" + this.mBitScreen);
-                }
-
-                this.setDrawingCacheEnabled(false);
-            } catch (Exception var3) {
-                Log.e("LEVEL-ROW-COLUMN", "MapControl.Refresh at 490" + var3.getMessage());
-            }
-
-            if(this.mBitScreen != null && !this.mBitScreen.isRecycled() && this.mActiveView.FocusMap().getHasWMTSBUTTOM()) {
-                this.mActiveView.FocusMap().Refresh(this.myHandler, this.mBitScreen);
-            } else {
-                this.mActiveView.FocusMap().Refresh(this.myHandler, (Bitmap)null);
-            }
-        } catch (InterruptedException var4) {
-            Log.e("LEVEL-ROW-COLUMN", "MapControl.Refresh at 507 InterruptedException" + var4.getMessage());
-            var4.printStackTrace();
-        } catch (Exception var5) {
-            Log.e("LEVEL-ROW-COLUMN", "MapControl.Refresh at 510" + var5.getMessage());
-            Message message = new Message();
-            message.arg1 = 2;
-            this.myHandler.sendMessage(message);
-        }
-
-    }
-
-    public void EditRefresh() {
-    }
-
-    public void PartialRefresh() {
-        try {
-            this.mActiveView.FocusMap().PartialRefresh();
-            this.DrawTrack();
-        } catch (Exception var2) {
-            var2.printStackTrace();
-            System.out.println(var2.getMessage());
-        }
-
-    }
-
-    public void DrawTileImage(String key, Handler handler) {
-        TileLayer.DrawImageFromURL(key, handler);
-    }
-
-    public void DrawTrackLayer() {
-        BitmapDrawable bd = new BitmapDrawable(this.getResources(), this.mActiveView.FocusMap().ExportMapLayer());
-        this.setBackgroundDrawable(bd);
-        Log.i("LEVEL-ROW-COLUMN", "图层：" + String.valueOf(Map.INDEXDRAWLAYER) + "绘制,将\'图层缓存\'绘于屏幕 MapControl.DrawTrackLayer");
-    }
-
-    public void DrawTrack() {
-        Bitmap bmp = this.mActiveView.FocusMap().ExportMap(false).copy(Bitmap.Config.RGB_565, true);
-        BitmapDrawable bd = new BitmapDrawable(this.getResources(), bmp);
-        this.setBackgroundDrawable(bd);
-        bmp = null;
-        Log.i("LEVEL-ROW-COLUMN", "地图刷新完成,将画布底图绘于屏幕 MapControl.DrawTrack");
-    }
-
-    public void DrawTrack(Bitmap bit) {
-        if(bit != null && bit != this.mActiveView.FocusMap().ExportMap(false)) {
-            BitmapDrawable bd = new BitmapDrawable(this.getResources(), bit);
-            this.setBackgroundDrawable(bd);
-            bit = null;
-        }
-
     }
 
     /*public void setdata(IMap map, int fid, IFeatureLayer layer, IEnvelope env) {
@@ -481,6 +411,58 @@ public class MapView extends BaseControl implements ContentChangedListener {
         this.getActiveView().FocusMap().setExtent(this.menv);
         this.PartialRefresh();
     }*/
+
+    public void StopDraw() {
+        ImageDownLoader.cancelTask();
+    }
+
+    public void doEvent(EventObject event) {
+        int width = this.getWidth();
+        int height = this.getHeight();
+        if(width != 0 && height != 0) {
+            this.mActiveView.FocusMap().setDeviceExtent(new Envelope(0.0D, 0.0D, (double)width, (double)height));
+        } else {
+            this.mActiveView.FocusMap().setDeviceExtent(new Envelope(0.0D, 0.0D, 60.0D, 60.0D));
+        }
+    }
+
+    public void dispose() throws Exception {
+        if(this.mBitScreen != null && !this.mBitScreen.isRecycled()) {
+            this.mBitScreen.recycle();
+            this.mBitScreen = null;
+        }
+
+        this.mBitScreen = null;
+        this.myHandler = null;
+        this.mProgressBar = null;
+        this.mPaint = null;
+        this.menv = null;
+        /*this.fLayer = null;
+        this.mfieldID = null;*/
+        this.mActiveView.dispose();
+        this.mActiveView = null;
+        //this.mTVRules = null;
+        ((ZoomPan)this.mZoomPan).dispose();
+        this.mZoomPan = null;
+        //this.mGPSTool = null;
+        this.mDrawTool = null;
+    }
+
+    public void EditRefresh() {
+    }
+
+    public void Copy(BaseControl targetControl) {
+        if(targetControl.getActiveView().FocusMap() == null) {
+            targetControl.getActiveView().FocusMap(this.mActiveView.FocusMap());
+        }
+
+        if(!targetControl.getActiveView().equals(this.mActiveView)) {
+            this.mActiveView = targetControl.getActiveView();
+            this.mActiveView.getContentChanged().addListener(this);
+        }
+
+        this.mActiveView.FocusMap().setDeviceExtent(new Envelope(0.0D, 0.0D, (double)this.getWidth(), (double)this.getHeight()));
+    }
 
     private IEnvelope getAllSelectEnvelope(List<IEnvelope> envs) {
         this.menv = this.getActiveView().FocusMap().getExtent();
@@ -521,24 +503,4 @@ public class MapView extends BaseControl implements ContentChangedListener {
         }
     }
 
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
-        int weidth = r - l;
-        int height = b - t;
-        if(this.misFirst && changed && this.mwidthold != weidth && this.mheightold != height) {
-            this.mwidthold = weidth;
-            this.mheightold = height;
-            Log.i("MapControl。onLayout", "width:" + this.mwidthold + ";height:" + this.mheightold + ";");
-            IMap mMap = this.mActiveView.FocusMap();
-            mMap.setDeviceExtent(new Envelope(0.0D, 0.0D, (double)this.mwidthold, (double)this.mheightold));
-            this.misFirst = false;
-            this.Refresh();
-        }
-
-    }
-
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        Log.i("MapControl", "onMeasure");
-    }
 }
