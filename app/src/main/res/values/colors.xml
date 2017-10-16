@@ -3,4 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="cl_bar_bg">#22A5FF</color>
+    <color name="cl_bar_fg">#355AFF</color>
 </resources>
