@@ -1,10 +1,9 @@
 package com.willc.surveyor;
 
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.Window;
 import android.widget.LinearLayout;
 
 import com.surveyor.drawlib.map.IMap;
@@ -20,6 +19,8 @@ import srs.Geometry.Envelope;
 import srs.Geometry.IGeometry;
 import srs.Layer.FeatureLayer;
 import srs.Layer.IFeatureLayer;
+import srs.Layer.IRasterLayer;
+import srs.Layer.RasterLayer;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
             this.map = new Map(new Envelope(0, 0, 100D, 100D));
 
             // 加载影像文件数据 /TestData/IMAGE/长葛10村.tif /test/辉县市/IMAGE/01.tif  /storage/emulated/0/FlightTarget/廊坊.tif
-            /*final String tifPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/collector/长葛10村.tif";
+            final String tifPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/collector/长葛10村.tif";
             Log.i(TAG, tifPath);
 
             File tifFile = new File(tifPath);
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                 if (layer != null) {
                     this.map.AddLayer(layer);
                 }
-            }*/
+            }
 
             // 加载shp矢量文件数据 /TestData/Data/调查村.shp /test/辉县市/TASK/村边界.shp
             final String shpPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/collector/Data/调查村.shp";
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            this.map.setExtent(((IFeatureLayer) map.GetLayer(0)).getFeatureClass().getGeometry(1).Extent());
+            this.map.setExtent(((IFeatureLayer) map.GetLayer(1)).getFeatureClass().getGeometry(1).Extent());
             this.map.setGeoProjectType(ProjCSType.ProjCS_WGS1984_Albers_BJ);
         }
         return this.map;

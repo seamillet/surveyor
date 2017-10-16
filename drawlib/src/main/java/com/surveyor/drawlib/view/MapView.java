@@ -54,9 +54,10 @@ public class MapView extends BaseControl implements ContentChangedListener {
     private ProgressBar mProgressBar;
     private Handler myHandler;
 
+    public boolean misFirst = true;
+
     public Bitmap mBitScreen = null;
     private Paint mPaint = new Paint();
-    public boolean misFirst = true;
     private boolean IsDrawTrack = false;
 
     IEnvelope menv = null;
@@ -96,10 +97,6 @@ public class MapView extends BaseControl implements ContentChangedListener {
                 try {
                     super.handleMessage(msg);
                     switch(msg.arg1) {
-                        case 0:
-                        case 5:
-                        default:
-                            break;
                         case 1:
                         case 2:
                             MapView.this.DrawTrack();
@@ -136,6 +133,10 @@ public class MapView extends BaseControl implements ContentChangedListener {
                             Log.i(TAG, "图层：" + String.valueOf(Map.INDEXDRAWLAYER) + "已经绘制完成，绘制下一层map.drawLayer");
                             ++Map.INDEXDRAWLAYER;
                             MapView.this.mActiveView.FocusMap().drawLayer(MapView.this.myHandler);
+                        case 0:
+                        case 5:
+                        default:
+                            break;
                     }
                 } catch (Exception ex) {
                     Log.e(TAG, "MapView myHandler handleMessage()" + ex.getMessage());
@@ -149,12 +150,6 @@ public class MapView extends BaseControl implements ContentChangedListener {
         Log.i(TAG, String.format("onFinishInflate(). the width is %s, the height is %s", this.getWidth(), this.getHeight()));
 
         Envelope en = new Envelope(-180.0D, -90.0D, 90.0D, 180.0D);
-        int width = this.getWidth();
-        int height = this.getHeight();
-        if(this.mActiveView == null && width > 0 && height > 0) {
-            en = new Envelope(0.0D, 0.0D, (double)width, (double)height);
-        }
-
         this.mActiveView.FocusMap(new Map(en));
         this.mActiveView.getContentChanged().addListener(this);
         System.gc();
@@ -183,14 +178,14 @@ public class MapView extends BaseControl implements ContentChangedListener {
     }
 
     protected void onDraw(Canvas canvas) {
-        try {
+        /*try {
             super.onDraw(canvas);
         } catch (Exception var4) {
             Log.i("RECYCLE", "MyIamgeView -> onDraw() Canvas:trying to use a recycled bitmap");
-        }
-
+        }*/
+        super.onDraw(canvas);
         Log.i(TAG, "MapView.onDraw(). 重画屏幕");
-        try {
+        /*try {
             if(this.mZoomPan != null && ((ZoomPan)this.mZoomPan).isMAGNIFY()) {
                 super.onDraw(canvas);
                 ((ZoomPan)this.mZoomPan).drawMagnify(canvas);
@@ -212,7 +207,7 @@ public class MapView extends BaseControl implements ContentChangedListener {
             }
         } catch (Exception ex) {
             Log.e(TAG, "MapView.onDraw() Exception. The msg is " + ex.getMessage());
-        }
+        }*/
     }
 
     public boolean onTouch(View v, MotionEvent event) {
@@ -226,9 +221,6 @@ public class MapView extends BaseControl implements ContentChangedListener {
         }
 
         if(this.mZoomPan != null) {
-//            if(this.mGPSTool != null) {
-//                this.mGPSTool.onTouch(v, event);
-//            }
             Log.i(TAG, "MapView.onTouch(). mZoomPan!=null. --> mZoomPan.onTouch()");
             return this.mZoomPan.onTouch(v, event);
         } else {

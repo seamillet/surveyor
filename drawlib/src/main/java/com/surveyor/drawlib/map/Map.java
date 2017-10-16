@@ -15,6 +15,7 @@ import com.surveyor.drawlib.map.event.LayerClearedManager;
 import com.surveyor.drawlib.map.event.LayerEventArgs;
 import com.surveyor.drawlib.map.event.LayerRemovedManager;
 import com.surveyor.drawlib.map.event.MapExtentChangedManager;
+import com.surveyor.drawlib.view.MapView;
 
 import org.dom4j.Element;
 
@@ -63,6 +64,8 @@ import srs.Utility.unitType;
  * Created by stg on 17/10/14.
  */
 public class Map implements IMap, LayerActiveChangedListener, SelectionChangedListener, ElementListener {
+    private static final String TAG = Map.class.getSimpleName();
+
     private String mName;
     private IScreenDisplay mScreenDisplay;
     private IElementContainer mElementContainer;
@@ -515,7 +518,6 @@ public class Map implements IMap, LayerActiveChangedListener, SelectionChangedLi
         } catch (Exception var2) {
             Log.e("地图渲染错误", var2.getMessage());
         }
-
     }
 
     public void drawLayer(Handler handler) {
