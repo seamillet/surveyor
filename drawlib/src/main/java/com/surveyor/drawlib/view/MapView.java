@@ -14,10 +14,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.surveyor.drawlib.map.ActiveView;
 import com.surveyor.drawlib.map.IActiveView;
@@ -51,25 +48,28 @@ public class MapView extends BaseControl implements ContentChangedListener {
 
     private IActiveView mActiveView;
     private ITool mZoomPan = null;
-    private ITool mGPSTool = null;
     private ITool mDrawTool = null;
+
+    DisplayMetrics displayMetrics = new DisplayMetrics();
+    private int densityDpi;
     private int mwidthold = 0;
     private int mheightold = 0;
+
     private ProgressBar mProgressBar;
-    private boolean IsDrawTrack = false;
-    public Bitmap mBitScreen = null;
     private Handler myHandler;
-    DisplayMetrics dm = new DisplayMetrics();
-    private int densityDpi;
-    public int MODE = 0;
-    private TextView mTVRules;
+
+    public Bitmap mBitScreen = null;
     private Paint mPaint = new Paint();
     public boolean misFirst = true;
+    private boolean IsDrawTrack = false;
+
     IEnvelope menv = null;
-    int mFid;
+    public int MODE = 0;
+
+    /*int mFid;
     String mfieldID;
     IFeatureLayer fLayer = null;
-    public String IndexOfCheck = "";
+    public String IndexOfCheck = "";*/
 
     public void dispose() throws Exception {
         if(this.mBitScreen != null && !this.mBitScreen.isRecycled()) {
@@ -82,14 +82,14 @@ public class MapView extends BaseControl implements ContentChangedListener {
         this.mProgressBar = null;
         this.mPaint = null;
         this.menv = null;
-        this.fLayer = null;
-        this.mfieldID = null;
+        /*this.fLayer = null;
+        this.mfieldID = null;*/
         this.mActiveView.dispose();
         this.mActiveView = null;
-        this.mTVRules = null;
+        //this.mTVRules = null;
         ((ZoomPan)this.mZoomPan).dispose();
         this.mZoomPan = null;
-        this.mGPSTool = null;
+        //this.mGPSTool = null;
         this.mDrawTool = null;
     }
 
@@ -112,14 +112,14 @@ public class MapView extends BaseControl implements ContentChangedListener {
         this.mProgressBar = new ProgressBar(this.getContext());
         LayoutParams params = new LayoutParams(-2, -2);
         params.addRule(13);
-        this.mTVRules = new TextView(this.getContext());
+        //this.mTVRules = new TextView(this.getContext());
         this.addView(this.mProgressBar, params);
-        LayoutParams paramRules = new LayoutParams(-2, -2);
+        /*LayoutParams paramRules = new LayoutParams(-2, -2);
         paramRules.addRule(6);
         paramRules.addRule(5);
-        this.addView(this.mTVRules, paramRules);
-        this.dm = this.getResources().getDisplayMetrics();
-        this.densityDpi = this.dm.densityDpi;
+        this.addView(this.mTVRules, paramRules);*/
+        this.displayMetrics = this.getResources().getDisplayMetrics();
+        this.densityDpi = this.displayMetrics.densityDpi;
         this.myHandler = new Handler() {
             public void handleMessage(Message msg) {
                 try {
@@ -204,7 +204,7 @@ public class MapView extends BaseControl implements ContentChangedListener {
 
     }
 
-    public void setGPSTool(ITool value) {
+    /*public void setGPSTool(ITool value) {
         if(value != null) {
             this.mGPSTool = value;
             this.mGPSTool.setBuddyControl(this);
@@ -225,7 +225,7 @@ public class MapView extends BaseControl implements ContentChangedListener {
 
     public ITool getGPSTool() {
         return this.mGPSTool;
-    }
+    }*/
 
     public boolean onTouch(View v, MotionEvent event) {
         if(this.mDrawTool != null && this.mDrawTool.getEnable().booleanValue()) {
@@ -236,9 +236,9 @@ public class MapView extends BaseControl implements ContentChangedListener {
         }
 
         if(this.mZoomPan != null) {
-            if(this.mGPSTool != null) {
-                this.mGPSTool.onTouch(v, event);
-            }
+//            if(this.mGPSTool != null) {
+//                this.mGPSTool.onTouch(v, event);
+//            }
 
             return this.mZoomPan.onTouch(v, event);
         } else {
@@ -448,7 +448,7 @@ public class MapView extends BaseControl implements ContentChangedListener {
 
     }
 
-    public void setdata(IMap map, int fid, IFeatureLayer layer, IEnvelope env) {
+    /*public void setdata(IMap map, int fid, IFeatureLayer layer, IEnvelope env) {
         this.fLayer = layer;
         this.mFid = fid;
         this.menv = new Envelope(env.XMin() - env.Width() * 0.1D, env.YMin() - env.Height() * 0.1D, env.XMax() + env.Width() * 0.1D, env.YMax() + env.Height() * 0.1D);
@@ -480,7 +480,7 @@ public class MapView extends BaseControl implements ContentChangedListener {
         this.getActiveView().FocusMap().getSelectionSet().AddFeatures(s);
         this.getActiveView().FocusMap().setExtent(this.menv);
         this.PartialRefresh();
-    }
+    }*/
 
     private IEnvelope getAllSelectEnvelope(List<IEnvelope> envs) {
         this.menv = this.getActiveView().FocusMap().getExtent();
