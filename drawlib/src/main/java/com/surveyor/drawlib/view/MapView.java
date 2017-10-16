@@ -106,10 +106,11 @@ public class MapView extends BaseControl implements ContentChangedListener {
                             ImageDownLoader.cancelTask();
                             ImageDownLoader.StopThread();
                             MapView.this.mProgressBar.setVisibility(View.GONE);
-                            Log.e("LEVEL-ROW-COLUMN", "MapControl刷新完成：进度条消失");
+                            Log.i(TAG, "handleMessage, msg=" + msg.arg1);
+                            Log.i(TAG, "MapView刷新完成, 进度条消失");
                             break;
                         case 3:
-                            Log.i("LEVEL-ROW-COLUMN", "3: 图层：" + String.valueOf(Map.INDEXDRAWLAYER) + " 绘制过程中,将部分\'图层缓存\'绘于屏幕 MapControl.DrawTrackLayer");
+                            Log.i(TAG, "handleMessage, msg=" + msg.arg1+" and drawTrackLayer()");
                             MapView.this.DrawTrackLayer();
                             break;
                         case 4:
@@ -122,20 +123,22 @@ public class MapView extends BaseControl implements ContentChangedListener {
                             }
 
                             if(TileLayer.IsDrawnEnd()) {
-                                Log.i("LEVEL-ROW-COLUMN", "图层：" + String.valueOf(Map.INDEXDRAWLAYER) + "绘制瓦片已经绘制完成，绘制下一层");
+                                Log.i(TAG, "handleMessage, msg=4 and drawTrackLayer()");
                                 MapView.this.DrawTrackLayer();
+                                Log.i(TAG, "图层：" + String.valueOf(Map.INDEXDRAWLAYER) + "绘制瓦片已经绘制完成，绘制下一层map.drawLayer");
                                 ++Map.INDEXDRAWLAYER;
                                 MapView.this.mActiveView.FocusMap().drawLayer(MapView.this.myHandler);
                             }
                             break;
                         case 6:
+                            Log.i(TAG, "handleMessage, msg=6 and drawTrackLayer()");
                             MapView.this.DrawTrackLayer();
+                            Log.i(TAG, "图层：" + String.valueOf(Map.INDEXDRAWLAYER) + "已经绘制完成，绘制下一层map.drawLayer");
                             ++Map.INDEXDRAWLAYER;
                             MapView.this.mActiveView.FocusMap().drawLayer(MapView.this.myHandler);
                     }
-                } catch (Exception var3) {
-                    Log.e("LEVEL-ROW-COLUMN", "MapControl.myHandler.handleMessage:" + var3.getMessage());
-                    Log.e("key", "e.getMessage()");
+                } catch (Exception ex) {
+                    Log.e(TAG, "MapView myHandler handleMessage()" + ex.getMessage());
                 }
             }
         };
@@ -143,6 +146,8 @@ public class MapView extends BaseControl implements ContentChangedListener {
 
     protected void onFinishInflate() {
         super.onFinishInflate();
+        Log.i(TAG, String.format("onFinishInflate(). the width is %s, the height is %s", this.getWidth(), this.getHeight()));
+
         Envelope en = new Envelope(-180.0D, -90.0D, 90.0D, 180.0D);
         int width = this.getWidth();
         int height = this.getHeight();
@@ -157,12 +162,14 @@ public class MapView extends BaseControl implements ContentChangedListener {
 
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
-        int weidth = r - l;
+        int width = r - l;
         int height = b - t;
-        if(this.misFirst && changed && this.mwidthold != weidth && this.mheightold != height) {
-            this.mwidthold = weidth;
+        Log.i(TAG, String.format("onLayout(). the width is %s, the height is %s", width, height));
+
+        if(this.misFirst && changed && this.mwidthold != width && this.mheightold != height) {
+            this.mwidthold = width;
             this.mheightold = height;
-            Log.i("MapControl。onLayout", "width:" + this.mwidthold + ";height:" + this.mheightold + ";");
+            Log.i("MapView.onLayout", "width:" + this.mwidthold + ";height:" + this.mheightold + ";");
             IMap mMap = this.mActiveView.FocusMap();
             mMap.setDeviceExtent(new Envelope(0.0D, 0.0D, (double)this.mwidthold, (double)this.mheightold));
             this.misFirst = false;
@@ -172,7 +179,7 @@ public class MapView extends BaseControl implements ContentChangedListener {
 
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        Log.i("MapControl", "onMeasure");
+        Log.i(TAG, String.format("onMeasure(). the widthMeasureSpec is %s, the heightMeasureSpec is %s", widthMeasureSpec, heightMeasureSpec));
     }
 
     protected void onDraw(Canvas canvas) {
@@ -182,8 +189,8 @@ public class MapView extends BaseControl implements ContentChangedListener {
             Log.i("RECYCLE", "MyIamgeView -> onDraw() Canvas:trying to use a recycled bitmap");
         }
 
+        Log.i(TAG, "MapView.onDraw(). 重画屏幕");
         try {
-            Log.i("onDraw", "重画屏幕");
             if(this.mZoomPan != null && ((ZoomPan)this.mZoomPan).isMAGNIFY()) {
                 super.onDraw(canvas);
                 ((ZoomPan)this.mZoomPan).drawMagnify(canvas);
@@ -193,24 +200,25 @@ public class MapView extends BaseControl implements ContentChangedListener {
             if(this.IsDrawTrack) {
                 if(this.mBitScreen == null) {
                     this.mBitScreen = this.mActiveView.FocusMap().ExportMap(false).copy(Bitmap.Config.RGB_565, true);
-                    Log.d("mBitScreen", "" + this.mBitScreen);
+                    Log.i("mBitScreen", "" + this.mBitScreen);
                 }
 
                 canvas.drawBitmap(this.mBitScreen, 0.0F, 0.0F, this.mPaint);
                 this.IsDrawTrack = false;
                 if(this.mBitScreen != null && !this.mBitScreen.isRecycled()) {
                     this.mBitScreen = null;
-                    Log.d("mBitScreen", "" + this.mBitScreen);
+                    Log.i("mBitScreen", "" + this.mBitScreen);
                 }
             }
-        } catch (Exception var3) {
-            System.out.println("终于抓到你了！");
-            var3.printStackTrace();
+        } catch (Exception ex) {
+            Log.e(TAG, "MapView.onDraw() Exception. The msg is " + ex.getMessage());
         }
     }
 
     public boolean onTouch(View v, MotionEvent event) {
         if(this.mDrawTool != null && this.mDrawTool.getEnable().booleanValue()) {
+            Log.i(TAG, "MapView.onTouch(). mDrawTool!=null and mDrawTool is enabled. --> mDrawTool.onTouch()");
+
             boolean end = this.mDrawTool.onTouch(v, event);
             if(end) {
                 return end;
@@ -221,7 +229,7 @@ public class MapView extends BaseControl implements ContentChangedListener {
 //            if(this.mGPSTool != null) {
 //                this.mGPSTool.onTouch(v, event);
 //            }
-
+            Log.i(TAG, "MapView.onTouch(). mZoomPan!=null. --> mZoomPan.onTouch()");
             return this.mZoomPan.onTouch(v, event);
         } else {
             return true;
@@ -230,7 +238,7 @@ public class MapView extends BaseControl implements ContentChangedListener {
 
     public void Refresh() {
         try {
-            this.setDrawingCacheEnabled(true);
+            /*this.setDrawingCacheEnabled(true);
 
             try {
                 if(!this.misFirst && this.mActiveView.FocusMap().getHasWMTSBUTTOM()) {
@@ -241,8 +249,8 @@ public class MapView extends BaseControl implements ContentChangedListener {
                 this.setDrawingCacheEnabled(false);
             } catch (Exception var3) {
                 Log.e("LEVEL-ROW-COLUMN", "MapControl.Refresh at 490" + var3.getMessage());
-            }
-
+            }*/
+            Log.i(TAG, "Refresh(). MapView全刷新");
             if(this.mBitScreen != null && !this.mBitScreen.isRecycled() && this.mActiveView.FocusMap().getHasWMTSBUTTOM()) {
                 this.mActiveView.FocusMap().Refresh(this.myHandler, this.mBitScreen);
             } else {
@@ -261,11 +269,11 @@ public class MapView extends BaseControl implements ContentChangedListener {
 
     public void PartialRefresh() {
         try {
+            Log.i(TAG, "PartialRefresh(). MapView部分刷新");
             this.mActiveView.FocusMap().PartialRefresh();
             this.DrawTrack();
-        } catch (Exception var2) {
-            var2.printStackTrace();
-            System.out.println(var2.getMessage());
+        } catch (Exception ex) {
+            Log.e(TAG, "MapView.PartialRefresh() Exception. The msg is " + ex.getMessage());
         }
     }
 
@@ -276,7 +284,7 @@ public class MapView extends BaseControl implements ContentChangedListener {
     public void DrawTrackLayer() {
         BitmapDrawable bd = new BitmapDrawable(this.getResources(), this.mActiveView.FocusMap().ExportMapLayer());
         this.setBackgroundDrawable(bd);
-        Log.i("LEVEL-ROW-COLUMN", "图层：" + String.valueOf(Map.INDEXDRAWLAYER) + "绘制,将\'图层缓存\'绘于屏幕 MapControl.DrawTrackLayer");
+        Log.i(TAG, "图层：" + String.valueOf(Map.INDEXDRAWLAYER) + " 绘制过程中,将部分图层缓存绘于屏幕 MapView.drawTrackLayer");
     }
 
     public void DrawTrack() {
@@ -284,7 +292,7 @@ public class MapView extends BaseControl implements ContentChangedListener {
         BitmapDrawable bd = new BitmapDrawable(this.getResources(), bmp);
         this.setBackgroundDrawable(bd);
         bmp = null;
-        Log.i("LEVEL-ROW-COLUMN", "地图刷新完成,将画布底图绘于屏幕 MapControl.DrawTrack");
+        Log.i(TAG, "地图刷新完成,将画布底图绘于屏幕 MapView.drawTrack");
     }
 
     public void DrawTrack(Bitmap bit) {
