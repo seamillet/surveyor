@@ -243,11 +243,14 @@ public class MapView extends BaseControl implements ContentChangedListener {
                 Log.e("LEVEL-ROW-COLUMN", "MapControl.Refresh at 490" + var3.getMessage());
             }*/
             Log.i(TAG, "Refresh(). MapView全刷新");
-            if(this.mBitScreen != null && !this.mBitScreen.isRecycled() && this.mActiveView.FocusMap().getHasWMTSBUTTOM()) {
+            this.mActiveView.FocusMap().Refresh(this.myHandler, null);
+//            this.mActiveView.FocusMap().Refresh(null);
+//            this.DrawTrack();
+            /*if(this.mBitScreen != null && !this.mBitScreen.isRecycled() && this.mActiveView.FocusMap().getHasWMTSBUTTOM()) {
                 this.mActiveView.FocusMap().Refresh(this.myHandler, this.mBitScreen);
             } else {
                 this.mActiveView.FocusMap().Refresh(this.myHandler, (Bitmap)null);
-            }
+            }*/
         } catch (InterruptedException var4) {
             Log.e("LEVEL-ROW-COLUMN", "MapControl.Refresh at 507 InterruptedException" + var4.getMessage());
             var4.printStackTrace();

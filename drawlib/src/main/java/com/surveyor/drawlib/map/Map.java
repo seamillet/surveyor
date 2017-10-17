@@ -579,7 +579,6 @@ public class Map implements IMap, LayerActiveChangedListener, SelectionChangedLi
                 var5.printStackTrace();
             }
         }
-
     }
 
     public final void Refresh(Handler handler, Bitmap bitmap) throws Exception {
@@ -595,7 +594,7 @@ public class Map implements IMap, LayerActiveChangedListener, SelectionChangedLi
 
         for(int i = 0; i < layersCount; ++i) {
             if(((ILayer)this.mLayers.get(i)).getVisible()) {
-                ((Layer)(this.mLayers.get(i) instanceof Layer?(ILayer)this.mLayers.get(i):null)).DrawLayer(this.mScreenDisplay, (Handler)null);
+                ((Layer)(this.mLayers.get(i) instanceof Layer?(ILayer)this.mLayers.get(i):null)).DrawLayer(this.mScreenDisplay, null);
             }
         }
 
