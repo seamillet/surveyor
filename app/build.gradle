@@ -29,5 +29,6 @@ dependencies {
     //compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.alibaba:fastjson:1.2.39'
     //compile 'com.google.guava:guava:23.0-android'
+
     compile project(':drawlib')
 }

@@ -8,7 +8,7 @@ import android.widget.LinearLayout;
 
 import com.surveyor.drawlib.map.IMap;
 import com.surveyor.drawlib.map.Map;
-import com.surveyor.drawlib.view.MapView;
+import com.surveyor.drawlib.mapview.MapView;
 
 import java.io.File;
 import java.util.ArrayList;

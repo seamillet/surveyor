@@ -1,4 +1,4 @@
-package com.surveyor.drawlib.view;
+package com.surveyor.drawlib.mapview;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -16,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.surveyor.drawlib.elements.container.IElementContainer;
 import com.surveyor.drawlib.map.ActiveView;
 import com.surveyor.drawlib.map.IActiveView;
 import com.surveyor.drawlib.map.IMap;
@@ -31,7 +32,6 @@ import java.util.List;
 import srs.Geometry.Envelope;
 import srs.Geometry.IEnvelope;
 import srs.Geometry.IPoint;
-import srs.Layer.IElementContainer;
 import srs.Layer.IGPSContainer;
 import srs.Layer.TileLayer;
 import srs.Layer.wmts.ImageDownLoader;
@@ -185,6 +185,7 @@ public class MapView extends BaseControl implements ContentChangedListener {
         }*/
         super.onDraw(canvas);
         Log.i(TAG, "MapView.onDraw(). 重画屏幕");
+        Log.i(TAG, "MapView current scale is " + mActiveView.FocusMap().getScale());
         /*try {
             if(this.mZoomPan != null && ((ZoomPan)this.mZoomPan).isMAGNIFY()) {
                 super.onDraw(canvas);
@@ -211,10 +212,16 @@ public class MapView extends BaseControl implements ContentChangedListener {
     }
 
     public boolean onTouch(View v, MotionEvent event) {
-        if(this.mDrawTool != null && this.mDrawTool.getEnable().booleanValue()) {
-            Log.i(TAG, "MapView.onTouch(). mDrawTool!=null and mDrawTool is enabled. --> mDrawTool.onTouch()");
+        IEnvelope deviceExtent = mActiveView.FocusMap().getDeviceExtent();
+        IEnvelope extent = mActiveView.FocusMap().getExtent();
 
+        Log.i(TAG, String.format("MapView.onTouch() --> device extent=[xmin=%s,ymin=%s,xmax=%s,ymax=%s]", deviceExtent.XMin(), deviceExtent.YMin(), deviceExtent.XMax(), deviceExtent.YMax()));
+        Log.i(TAG, String.format("MapView.onTouch() --> extent=[xmin=%s,ymin=%s,xmax=%s,ymax=%s]",extent.XMin(), extent.YMin(), extent.XMax(), extent.YMax()));
+        if(this.mDrawTool != null && this.mDrawTool.getEnable().booleanValue()) {
+            Log.i(TAG, "MapView.onTouch() --> mDrawTool.onTouch()");
             boolean end = this.mDrawTool.onTouch(v, event);
+            Log.i(TAG, "MapView.onTouch() --> mDrawTool.onTouch() -- result is " + end);
+
             if(end) {
                 return end;
             }

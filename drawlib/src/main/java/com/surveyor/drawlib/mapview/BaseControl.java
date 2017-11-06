@@ -1,4 +1,4 @@
-package com.surveyor.drawlib.view;
+package com.surveyor.drawlib.mapview;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,18 +8,18 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+import com.surveyor.drawlib.elements.container.IElementContainer;
 import com.surveyor.drawlib.map.IActiveView;
 import com.surveyor.drawlib.tools.ITool;
 
 import srs.Geometry.IPoint;
-import srs.Layer.IElementContainer;
 import srs.Layer.IGPSContainer;
 import srs.tools.Event.DrawToolEnableManager;
 
 /**
  * Created by stg on 17/10/15.
  */
-public class BaseControl extends RelativeLayout implements View.OnClickListener, View.OnTouchListener {
+public class BaseControl extends RelativeLayout implements View.OnClickListener,View.OnTouchListener {
     private ITool mTool;
     private DrawToolEnableManager mDrawToolEnableChanger = new DrawToolEnableManager();
 
@@ -69,7 +69,6 @@ public class BaseControl extends RelativeLayout implements View.OnClickListener,
         if(this.mTool != null) {
             this.mTool.onClick(v);
         }
-
     }
 
     public Bitmap getBitmap() {

@@ -24,7 +24,7 @@ import srs.Geometry.Envelope;
 /**
  * Created by stg on 17/10/14.
  */
-public class ActiveView implements IActiveView {
+public class ActiveView implements IActiveView{
     private boolean isRelativePath = true;
     private IMap mMap;
     private ContentChangedManager mContentChanged = new ContentChangedManager();
@@ -171,7 +171,6 @@ public class ActiveView implements IActiveView {
                     this.FocusMap(map);
                 }
             }
-
         }
     }
 

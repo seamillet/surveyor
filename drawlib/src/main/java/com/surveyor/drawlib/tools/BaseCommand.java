@@ -3,7 +3,7 @@ package com.surveyor.drawlib.tools;
 import android.graphics.Bitmap;
 import android.view.View;
 
-import com.surveyor.drawlib.view.BaseControl;
+import com.surveyor.drawlib.mapview.BaseControl;
 
 /**
  * Created by stg on 17/10/15.

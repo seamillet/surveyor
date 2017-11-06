@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.os.Handler;
 
+import com.surveyor.drawlib.elements.container.IElementContainer;
 import com.surveyor.drawlib.map.event.ActiveLayerChangedManager;
 import com.surveyor.drawlib.map.event.LayerAddedManager;
 import com.surveyor.drawlib.map.event.LayerChangedManager;
@@ -20,7 +21,6 @@ import srs.Display.IScreenDisplay;
 import srs.Geometry.IEnvelope;
 import srs.Geometry.IPoint;
 import srs.Layer.Event.LayerActiveChangedEvent;
-import srs.Layer.IElementContainer;
 import srs.Layer.IGPSContainer;
 import srs.Layer.ILayer;
 import srs.Operation.ISelectionSet;

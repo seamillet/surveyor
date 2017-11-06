@@ -9,7 +9,6 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -18,8 +17,8 @@ import android.widget.Toast;
 
 import com.surveyor.drawlib.map.IActiveView;
 import com.surveyor.drawlib.map.IMap;
-import com.surveyor.drawlib.view.BaseControl;
-import com.surveyor.drawlib.view.MapView;
+import com.surveyor.drawlib.mapview.BaseControl;
+import com.surveyor.drawlib.mapview.MapView;
 
 import srs.Geometry.Envelope;
 import srs.Geometry.IEnvelope;
@@ -275,12 +274,7 @@ public class ZoomPan extends BaseTool implements ITool{
     }
 
     @Override
-    public void drawAgain() {
-
-    }
-
-    @Override
-    public void saveResault() {
+    public void SaveResault() {
 
     }
 }

@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.surveyor.drawlib.elements.container.ElementContainer;
+import com.surveyor.drawlib.elements.container.IElementContainer;
 import com.surveyor.drawlib.map.event.ActiveLayerChangedManager;
 import com.surveyor.drawlib.map.event.LayerAddedManager;
 import com.surveyor.drawlib.map.event.LayerChangedEventArgs;
@@ -15,7 +17,6 @@ import com.surveyor.drawlib.map.event.LayerClearedManager;
 import com.surveyor.drawlib.map.event.LayerEventArgs;
 import com.surveyor.drawlib.map.event.LayerRemovedManager;
 import com.surveyor.drawlib.map.event.MapExtentChangedManager;
-import com.surveyor.drawlib.view.MapView;
 
 import org.dom4j.Element;
 
@@ -36,13 +37,11 @@ import srs.Geometry.IEnvelope;
 import srs.Geometry.IGeometry;
 import srs.Geometry.IPoint;
 import srs.Geometry.ISpatialOperator;
-import srs.Layer.ElementContainer;
 import srs.Layer.Event.ElementListener;
 import srs.Layer.Event.LayerActiveChangedEvent;
 import srs.Layer.Event.LayerActiveChangedListener;
 import srs.Layer.FeatureLayer;
 import srs.Layer.GPSContainer;
-import srs.Layer.IElementContainer;
 import srs.Layer.IFeatureLayer;
 import srs.Layer.IGPSContainer;
 import srs.Layer.ILayer;
@@ -688,6 +687,7 @@ public class Map implements IMap, LayerActiveChangedListener, SelectionChangedLi
                 }
             }
         }
+        Log.i(TAG, String.format("CaculateFullExtent, extent=[xmin=%s,ymin=%s,xmax=%s,ymax=%s]", mFullExtent.XMin(), mFullExtent.YMin(), mFullExtent.XMax(), mFullExtent.YMax()));
 
         return this.mFullExtent;
     }
