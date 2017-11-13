@@ -18,6 +18,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.willc.surveyor.CollectActivity"
+            android:label="@string/app_name" >
+        </activity>
+
+        <activity
+            android:name="com.willc.surveyor.ShearActivity"
+            android:label="@string/title_activity_shear" >
+        </activity>
     </application>
 
 </manifest>

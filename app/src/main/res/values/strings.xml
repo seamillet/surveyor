@@ -6,4 +6,12 @@
     <string name="action_shear">剪切</string>
     <string name="action_back">返回</string>
     <string name="action_save">保存</string>
+    <string name="action_revoke">切割线点撤销</string>
+    <string name="action_undo">地块撤销</string>
+    <string name="action_delpt">删除折点</string>
+    <string name="action_clear">删除要素</string>
+    <string name="action_gps">我的位置</string>
+
+    <string name="title_activity_shear">ShearActivity</string>
+
 </resources>
