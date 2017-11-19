@@ -4,9 +4,8 @@ import srs.Geometry.IPoint;
 import srs.Geometry.Point;
 
 /**
- * Created by stg on 17/11/13.
+ * Created by chengkeqian on 17/11/13.
  */
-
 public class GeometryUtil {
 
     /**

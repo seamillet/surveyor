@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -69,13 +68,13 @@ public class ShearActivity extends Activity {
 		//mapView.Refresh();
 
 		// Init the geometry will be sheared
-		GeoSplitManager.Instance().setMapcontrol(mapView);
-		//GeoSplitManager.Instance().initGeometry(CollectInteroperator.getShearGeometries());
-		GeoSplitManager.Instance().initGeometry(CollectInteroperator.getCollectedGeometries());
+		GeoSplitManager.instance().setMapcontrol(mapView);
+		//GeoSplitManager.instance().initGeometry(CollectInteroperator.getShearGeometries());
+		GeoSplitManager.instance().initGeometry(CollectInteroperator.getCollectedGeometries());
 
 		// Set title
 		txtTitle = (TextView) findViewById(R.id.title);
-		txtTitle.setText(R.string.title_activity_shear);
+		txtTitle.setText("切割");
 
 		// Init Shear tool and Set it to BuddyControl
 		if (shearTool == null) {
@@ -105,7 +104,7 @@ public class ShearActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				try {
-					if (GeoSplitManager.Instance().canUndo()) {
+					if (GeoSplitManager.instance().canUndo()) {
 						undo();
 					}
 				} catch (Exception e) {
@@ -166,7 +165,7 @@ public class ShearActivity extends Activity {
 			public void onClick(View v) {
 				try {
 					// 切割线点撤销
-					GeoSplitManager.Instance().revoke();
+					GeoSplitManager.instance().revoke();
 				} catch (Exception e) {
 					showToast(e.getMessage());
 				}
@@ -223,8 +222,8 @@ public class ShearActivity extends Activity {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				try {
-					GeoSplitManager.Instance().undo();
-					GeoSplitManager.Instance().clearDrawLine();
+					GeoSplitManager.instance().undo();
+					GeoSplitManager.instance().clearDrawLine();
 				} catch (Exception e) {
 					showToast(e.getMessage());
 				}
@@ -252,7 +251,7 @@ public class ShearActivity extends Activity {
 	private void dispose() throws IOException {
 		mapView.setDrawTool(null);
 		shearTool = null;
-		GeoSplitManager.Instance().dispose();
+		GeoSplitManager.instance().dispose();
 		CollectInteroperator.dispose();
 		System.gc();
 	}

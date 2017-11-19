@@ -39,7 +39,7 @@ import srs.Geometry.Polyline;
 import srs.Geometry.srsGeometryType;
 
 /**
- * @author keqian 面要素采集
+ * @author chengkeqian 房屋采集
  */
 public class HouseCollector extends GeoCollector {
     private static final String TAG = HouseCollector.class.getSimpleName();

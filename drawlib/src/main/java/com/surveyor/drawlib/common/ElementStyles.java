@@ -25,6 +25,7 @@ public final class ElementStyles {
     public final static ISimplePointSymbol NoFocusedPointStyle = new SimplePointSymbol(Color.WHITE, 14, SimplePointStyle.Square);
     public final static ISimplePointSymbol FocusedPointStyle = new SimplePointSymbol(Color.RED, 14, SimplePointStyle.Square);
     public final static ISimplePointSymbol POINT_LAST_STYLE = new SimplePointSymbol(Color.RED, 20, SimplePointStyle.Circle);
+    public final static ISimplePointSymbol POINT_VERTEX_STYLE = new SimplePointSymbol(Color.RED, 16, SimplePointStyle.Square);
     public final static ISimplePointSymbol NoFocusedMidPointStyle = new SimplePointSymbol(Color.rgb(64, 200, 255), 9, SimplePointStyle.Circle);
     public final static ISimplePointSymbol FocusedMidPointStyle = new SimplePointSymbol(Color.RED, 9, SimplePointStyle.Square);
     public final static ISimpleLineSymbol LineStyle = new SimpleLineSymbol(Color.BLACK, 4, SimpleLineStyle.Solid);
